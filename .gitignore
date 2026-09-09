@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+
+# Reportes generados por Locust
+*.html
+*.csv
+
+# Editor / SO
+.vscode/
+.idea/
+.DS_Store
