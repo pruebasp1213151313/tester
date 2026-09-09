@@ -1,0 +1,50 @@
+name: Load test
+
+# Solo se dispara manualmente desde la pestaña Actions de GitHub.
+# Así evitas correr carga por accidente en cada push.
+on:
+  workflow_dispatch:
+    inputs:
+      host:
+        description: "URL objetivo (debe ser tuya o autorizada)"
+        required: true
+      users:
+        description: "Usuarios virtuales"
+        required: true
+        default: "50"
+      spawn_rate:
+        description: "Usuarios por segundo al arrancar"
+        required: true
+        default: "5"
+      run_time:
+        description: "Duración (ej. 1m, 5m)"
+        required: true
+        default: "1m"
+
+jobs:
+  loadtest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Instalar dependencias
+        run: pip install -r requirements.txt
+
+      - name: Ejecutar load test
+        run: |
+          locust -f locustfile.py --host "${{ inputs.host }}" \
+            --headless \
+            -u "${{ inputs.users }}" \
+            -r "${{ inputs.spawn_rate }}" \
+            -t "${{ inputs.run_time }}" \
+            --html reporte.html
+
+      - name: Subir reporte
+        uses: actions/upload-artifact@v4
+        with:
+          name: reporte-loadtest
+          path: reporte.html
